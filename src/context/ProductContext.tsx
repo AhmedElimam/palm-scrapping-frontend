@@ -197,7 +197,13 @@ export function ProductProvider({ children }: { children: ReactNode }) {
           setLoading(true);
           setError(null);
           
-          console.log('[INIT] Initializing products with getProducts...');
+          // First, call fetchBothApis as backend indicator to trigger scraping
+          console.log('[INIT] Calling fetchBothApis as backend indicator...');
+          await apiClient.fetchBothApis(DEFAULT_LIMIT, DEFAULT_LIMIT);
+          console.log('[INIT] Backend indicator call completed');
+          
+          // Then, use getProducts to get data for UI rendering
+          console.log('[INIT] Fetching display data with getProducts...');
           const response = await apiClient.getProducts(1, DEFAULT_LIMIT);
           console.log('[INIT] getProducts response:', response);
           
@@ -219,14 +225,15 @@ export function ProductProvider({ children }: { children: ReactNode }) {
       setIsInitialized(true);
     }
     const interval = setInterval(() => {
-      if (!isRefreshDisabled) {
+      // Check if refresh is disabled inside the interval callback instead of using it as a dependency
+      if (currentLimit < 100) {
         refreshProducts();
       } else {
         console.log('[AUTO-REFRESH] Auto-refresh disabled: limit has reached 100');
       }
     }, 30000);
     return () => clearInterval(interval);
-  }, [refreshProducts, isInitialized, isRefreshDisabled]);
+  }, [refreshProducts, isInitialized]);
 
   return (
     <ProductContext.Provider value={{

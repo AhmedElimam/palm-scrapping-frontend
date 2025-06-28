@@ -95,7 +95,7 @@ export default function ProductGrid() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredProducts.map((product, index) => (
             <div
-              key={product.id}
+              key={`${product.platform}-${product.id}`}
               ref={index === filteredProducts.length - 1 ? lastElementRef : null}
             >
               <ProductCard product={product} />
