@@ -18,7 +18,8 @@ export default function ProductGrid() {
     loadingMore,
     loadMoreProducts,
     currentLimit,
-    currentPage
+    currentPage,
+    isRefreshDisabled
   } = useProducts();
 
   const { lastElementRef } = useInfiniteScroll({
@@ -57,6 +58,11 @@ export default function ProductGrid() {
                 <span>Next Refresh Limit: {15 + (Math.floor((currentLimit - 15) / 5) + 1) * 5}</span>
                 <span>Scroll Count: {currentPage - 1}</span>
               </div>
+              {isRefreshDisabled && (
+                <div className="mt-2 p-2 bg-yellow-100 border border-yellow-300 rounded text-yellow-800">
+                  ⚠️ Refresh disabled: Limit reached 100. Manual refresh and auto-refresh are disabled.
+                </div>
+              )}
             </div>
           </div>
           <div className="w-full lg:w-96">

@@ -4,7 +4,7 @@ import { useProducts } from '@/context/ProductContext';
 import Button from './ui/Button';
 
 export default function Header() {
-  const { lastUpdated, refreshProducts, fetchingBoth } = useProducts();
+  const { lastUpdated, refreshProducts, fetchingBoth, isRefreshDisabled, currentLimit } = useProducts();
 
   return (
     <header className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 shadow-xl">
@@ -39,12 +39,13 @@ export default function Header() {
             )}
             <Button
               onClick={refreshProducts}
-              disabled={fetchingBoth}
+              disabled={fetchingBoth || isRefreshDisabled}
               variant="secondary"
               size="md"
               className={`bg-white/20 hover:bg-white/30 border-white/30 transition-all duration-300 ${
-                fetchingBoth ? 'animate-pulse opacity-75' : ''
+                fetchingBoth || isRefreshDisabled ? 'animate-pulse opacity-75' : ''
               }`}
+              title={isRefreshDisabled ? `Refresh disabled: Limit reached ${currentLimit}/100` : 'Refresh products'}
             >
               <svg 
                 className={`w-4 h-4 mr-2 transition-transform duration-300 ${
@@ -56,7 +57,7 @@ export default function Header() {
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              {fetchingBoth ? 'Refreshing...' : 'Refresh Now'}
+              {fetchingBoth ? 'Refreshing...' : isRefreshDisabled ? 'Limit Reached' : 'Refresh Now'}
             </Button>
           </div>
         </div>

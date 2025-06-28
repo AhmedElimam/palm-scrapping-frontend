@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode, useMemo } from 'react';
 import { Product, ProductResponse } from '@/types/product';
 import { apiClient } from '@/lib/api';
 
@@ -21,6 +21,7 @@ interface ProductContextType {
   resetPagination: () => void;
   fetchBothPlatforms: (amazonLimit?: number, jumiaLimit?: number) => Promise<void>;
   fetchingBoth: boolean;
+  isRefreshDisabled: boolean;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -94,7 +95,35 @@ export function ProductProvider({ children }: { children: ReactNode }) {
     setRefreshCount(0);
   }, []);
 
+  const filteredProducts = useMemo(() => {
+    if (!searchQuery) return products;
+    
+    const query = searchQuery.toLowerCase();
+    return products.filter(product => {
+      return (
+        product.title.toLowerCase().includes(query) ||
+        product.price.toString().toLowerCase().includes(query) ||
+        product.id.toString().includes(query)
+      );
+    });
+  }, [products, searchQuery]);
+
+  const isRefreshDisabled = currentLimit >= 100;
+
+  useEffect(() => {
+    if (isInitialized && searchQuery) {
+      setCurrentPage(1);
+      setCurrentLimit(DEFAULT_LIMIT);
+      setHasMore(true);
+    }
+  }, [searchQuery, isInitialized]);
+
   const refreshProducts = useCallback(async () => {
+    if (isRefreshDisabled) {
+      console.log('[REFRESH] Refresh disabled: limit has reached 100');
+      return;
+    }
+
     try {
       setError(null);
       setFetchingBoth(true);
@@ -127,7 +156,7 @@ export function ProductProvider({ children }: { children: ReactNode }) {
       setFetchingBoth(false);
       console.log('[REFRESH] Refresh completed');
     }
-  }, [refreshCount]);
+  }, [refreshCount, isRefreshDisabled]);
 
   const fetchBothPlatforms = useCallback(async (amazonLimit?: number, jumiaLimit?: number) => {
     try {
@@ -161,37 +190,26 @@ export function ProductProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const filteredProducts = products.filter(product => {
-    if (!searchQuery) return true;
-    
-    const query = searchQuery.toLowerCase();
-    return (
-      product.title.toLowerCase().includes(query) ||
-      product.price.toString().toLowerCase().includes(query) ||
-      product.id.toString().includes(query)
-    );
-  });
-
   useEffect(() => {
     if (!isInitialized) {
       const initializeProducts = async () => {
         try {
           setLoading(true);
           setError(null);
-          const response = await apiClient.fetchBothApis(DEFAULT_LIMIT, DEFAULT_LIMIT);
-          if (response && response.success) {
-            const amazonProducts = response.amazon?.data || [];
-            const jumiaProducts = response.jumia?.data || [];
-            const combinedProducts = [...amazonProducts, ...jumiaProducts];
-            setProducts(combinedProducts);
-            setLastUpdated(new Date());
-            setCurrentPage(1);
-            setCurrentLimit(DEFAULT_LIMIT);
-            setHasMore(true);
-          } else {
-            throw new Error('Invalid response structure from fetch both APIs');
-          }
+          
+          console.log('[INIT] Initializing products with getProducts...');
+          const response = await apiClient.getProducts(1, DEFAULT_LIMIT);
+          console.log('[INIT] getProducts response:', response);
+          
+          setProducts(response.data);
+          setLastUpdated(new Date());
+          setCurrentPage(1);
+          setCurrentLimit(DEFAULT_LIMIT);
+          setHasMore(true);
+          console.log('[INIT] Products initialized successfully');
+          
         } catch (err) {
+          console.error('[INIT] Error initializing products:', err);
           setError(err instanceof Error ? err.message : 'Failed to initialize products');
         } finally {
           setLoading(false);
@@ -201,17 +219,14 @@ export function ProductProvider({ children }: { children: ReactNode }) {
       setIsInitialized(true);
     }
     const interval = setInterval(() => {
-      refreshProducts();
+      if (!isRefreshDisabled) {
+        refreshProducts();
+      } else {
+        console.log('[AUTO-REFRESH] Auto-refresh disabled: limit has reached 100');
+      }
     }, 30000);
     return () => clearInterval(interval);
-  }, [refreshProducts, isInitialized]);
-
-  useEffect(() => {
-    if (isInitialized) {
-      resetPagination();
-      fetchProducts(1, 15, false);
-    }
-  }, [searchQuery, isInitialized, resetPagination, fetchProducts]);
+  }, [refreshProducts, isInitialized, isRefreshDisabled]);
 
   return (
     <ProductContext.Provider value={{
@@ -231,6 +246,7 @@ export function ProductProvider({ children }: { children: ReactNode }) {
       resetPagination,
       fetchBothPlatforms,
       fetchingBoth,
+      isRefreshDisabled,
     }}>
       {children}
     </ProductContext.Provider>
