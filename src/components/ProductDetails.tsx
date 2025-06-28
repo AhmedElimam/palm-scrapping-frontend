@@ -5,7 +5,7 @@ import { useState } from 'react';
 import LoadingSpinner from './LoadingSpinner';
 import ErrorMessage from './ErrorMessage';
 import Button from './ui/Button';
-import { getCurrencyInfo, formatPriceWithCurrency } from '@/lib/currencyUtils';
+import { getCurrencyInfo, formatPriceWithCurrency, formatDate } from '@/lib/currencyUtils';
 import { useProduct } from '@/hooks/useProduct';
 
 interface ProductDetailsProps {
@@ -96,8 +96,8 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
                     {formattedPrice}
                   </div>
                   <div className="text-right text-sm text-gray-500 space-y-1">
-                    <div>Created: {new Date(product.created_at).toLocaleDateString()}</div>
-                    <div>Updated: {new Date(product.updated_at).toLocaleDateString()}</div>
+                    <div>Created: {formatDate(product.created_at)}</div>
+                    <div>Updated: {formatDate(product.updated_at)}</div>
                   </div>
                 </div>
               </div>
@@ -121,32 +121,17 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
                     <div className="flex justify-between items-center py-2 border-b border-gray-100">
                       <span className="text-gray-600 font-medium">Created:</span>
                       <span className="font-semibold text-gray-900">
-                        {new Date(product.created_at).toLocaleString()}
+                        {formatDate(product.created_at)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center py-2">
                       <span className="text-gray-600 font-medium">Last Updated:</span>
                       <span className="font-semibold text-gray-900">
-                        {new Date(product.updated_at).toLocaleString()}
+                        {formatDate(product.updated_at)}
                       </span>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div className="flex space-x-4 pt-4">
-                <Button className="flex-1" size="lg">
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                  View Original
-                </Button>
-                <Button variant="outline" className="flex-1" size="lg">
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-                  </svg>
-                  Share Product
-                </Button>
               </div>
             </div>
           </div>

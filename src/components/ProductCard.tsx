@@ -2,7 +2,7 @@
 
 import { Product } from '@/types/product';
 import { useRouter } from 'next/navigation';
-import { getCurrencyInfo, formatPriceWithCurrency } from '@/lib/currencyUtils';
+import { getCurrencyInfo, formatPriceWithCurrency, formatDate } from '@/lib/currencyUtils';
 
 interface ProductCardProps {
   product: Product;
@@ -57,7 +57,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             {formattedPrice}
           </div>
           <div className="text-sm text-gray-500">
-            {new Date(product.created_at).toLocaleDateString()}
+            {formatDate(product.created_at)}
           </div>
         </div>
         
