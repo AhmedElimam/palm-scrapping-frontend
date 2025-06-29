@@ -17,6 +17,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const formattedPrice = formatPriceWithCurrency(priceString);
 
   const handleCardClick = () => {
+    console.log(`[ProductCard] Clicked on product ${product.id}, navigating to /products/${product.id}`);
     router.push(`/products/${product.id}`);
   };
 

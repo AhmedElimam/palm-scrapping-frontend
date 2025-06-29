@@ -139,7 +139,6 @@ export function ProductProvider({ children }: { children: ReactNode }) {
       
       console.log('[REFRESH] Fetching display data with getProducts...');
       const response = await apiClient.getProducts(1, refreshLimit);
-      console.log('[REFRESH] getProducts response:', response);
       
       setProducts(response.data);
       setLastUpdated(new Date());
@@ -147,7 +146,6 @@ export function ProductProvider({ children }: { children: ReactNode }) {
       setCurrentLimit(refreshLimit);
       setRefreshCount(nextRefreshCount);
       setHasMore(true);
-      console.log(`[REFRESH] Products set from getProducts, limit: ${refreshLimit}`);
       
     } catch (err) {
       console.error('[REFRESH] Error in refreshProducts:', err);
@@ -171,9 +169,7 @@ export function ProductProvider({ children }: { children: ReactNode }) {
         const amazonProducts = response.amazon?.data || [];
         const jumiaProducts = response.jumia?.data || [];
         const combinedProducts = [...amazonProducts, ...jumiaProducts];
-        
-        console.log(`Combined ${amazonProducts.length} Amazon + ${jumiaProducts.length} Jumia = ${combinedProducts.length} total products`);
-        
+                
         setProducts(combinedProducts);
         setLastUpdated(new Date());
         setCurrentPage(1);
@@ -197,25 +193,17 @@ export function ProductProvider({ children }: { children: ReactNode }) {
           setLoading(true);
           setError(null);
           
-          // First, call fetchBothApis as backend indicator to trigger scraping
-          console.log('[INIT] Calling fetchBothApis as backend indicator...');
           await apiClient.fetchBothApis(DEFAULT_LIMIT, DEFAULT_LIMIT);
-          console.log('[INIT] Backend indicator call completed');
           
-          // Then, use getProducts to get data for UI rendering
-          console.log('[INIT] Fetching display data with getProducts...');
           const response = await apiClient.getProducts(1, DEFAULT_LIMIT);
-          console.log('[INIT] getProducts response:', response);
           
           setProducts(response.data);
           setLastUpdated(new Date());
           setCurrentPage(1);
           setCurrentLimit(DEFAULT_LIMIT);
           setHasMore(true);
-          console.log('[INIT] Products initialized successfully');
           
         } catch (err) {
-          console.error('[INIT] Error initializing products:', err);
           setError(err instanceof Error ? err.message : 'Failed to initialize products');
         } finally {
           setLoading(false);
@@ -225,12 +213,6 @@ export function ProductProvider({ children }: { children: ReactNode }) {
       setIsInitialized(true);
     }
     const interval = setInterval(() => {
-      // Check if refresh is disabled inside the interval callback instead of using it as a dependency
-      if (currentLimit < 100) {
-        refreshProducts();
-      } else {
-        console.log('[AUTO-REFRESH] Auto-refresh disabled: limit has reached 100');
-      }
     }, 30000);
     return () => clearInterval(interval);
   }, [refreshProducts, isInitialized]);

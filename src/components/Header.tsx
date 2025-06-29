@@ -7,7 +7,7 @@ export default function Header() {
   const { lastUpdated, refreshProducts, fetchingBoth, isRefreshDisabled, currentLimit } = useProducts();
 
   return (
-    <header className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 shadow-xl">
+    <header className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 shadow-xl fixed top-0 left-0 right-0 z-50 w-full">
       <div className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">

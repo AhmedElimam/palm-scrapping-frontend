@@ -89,7 +89,6 @@ class ApiClient {
     });
   }
 
-  // Fetch products from both platforms with pagination
   async fetchProductsWithPagination(page: number = 1, limit: number = 15): Promise<ProductResponse> {
     const params = new URLSearchParams({
       page: page.toString(),
@@ -99,7 +98,6 @@ class ApiClient {
     return this.request<ProductResponse>(`/api/products/paginated?${params.toString()}`);
   }
 
-  // Legacy method for backward compatibility
   async refreshProducts(): Promise<FetchResponse> {
     return this.fetchAmazonProducts(10);
   }

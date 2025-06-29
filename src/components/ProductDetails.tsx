@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import LoadingSpinner from './LoadingSpinner';
 import ErrorMessage from './ErrorMessage';
 import Button from './ui/Button';
@@ -13,9 +13,15 @@ interface ProductDetailsProps {
 }
 
 export default function ProductDetails({ productId }: ProductDetailsProps) {
+  console.log(`[ProductDetails] Rendering component for productId: ${productId}`);
+  
   const { product, loading, error } = useProduct(productId);
   const router = useRouter();
   const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    console.log(`[ProductDetails] Component mounted/updated for productId: ${productId}`);
+  }, [productId]);
 
   if (loading) {
     return <LoadingSpinner />;
@@ -38,6 +44,8 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
       </div>
     );
   }
+
+  console.log(`[ProductDetails] Rendering product data for ID: ${product.id}`);
 
   const priceString = product.price.toString();
   const currencyInfo = getCurrencyInfo(priceString);
